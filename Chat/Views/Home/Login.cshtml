@@ -1,0 +1,63 @@
+﻿
+@{
+    ViewBag.Title = "Login";
+}
+
+<h2>Login</h2>
+<html>
+
+<body>
+
+    <div class="userInfo" style="display:none;">
+        <p>Вы вошли как: <span class="userName"></span></p>
+        <input type="button" value="Выйти" id="logOut" />
+    </div>
+    <div class="loginForm">
+        <h3>Вход на сайт</h3>
+        <label>Username</label><br />
+        <input type="text" id="username" /> <br /><br />
+        <label>Password</label><br />
+        <input type="password" id="passwordLogin" /><br /><br />
+        <input type="submit" id="submitLogin" value="Логин" />
+    </div>
+    @User.Identity.Name
+</body>
+</html>
+@section scripts{
+    <script type="text/javascript">
+    $(function () {
+        var tokenKey = "accessToken";
+        $('#submitLogin').click(function (e) {
+            e.preventDefault();
+            var loginData = {
+                grant_type: 'password',
+                username: $('#username').val(),
+                password: $('#passwordLogin').val()
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '/Token',
+                data: loginData
+            }).success(function (data) {
+                $('.userName').text(data.userName);
+                $('.userInfo').css('display', 'block');
+                $('.loginForm').css('display', 'none');
+                
+
+                sessionStorage.setItem(tokenKey, data.access_token);
+                location.href = "/Home/ChatRoom";
+            }).fail(function (data) {
+                alert('Error');
+            });
+        });
+
+        $('#logOut').click(function (e) {
+            e.preventDefault();
+            sessionStorage.removeItem(tokenKey);
+            window.location.reload(false);
+        })
+    })
+    </script>
+}
+
